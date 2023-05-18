@@ -22,15 +22,27 @@ io.on("connection", (client) => {
       .to(usuario.sala)
       .emit("listaPersonas", usuarios.getPersonaPorSala(usuario.sala));
 
+    client.broadcast
+      .to(usuario.sala)
+      .emit(
+        "crearMensaje",
+        crearMensaje(
+          "Administrador",
+          `${usuario.nombre} ingreso al chat`
+        )
+      );
+
     callback(usuarios.getPersonaPorSala(usuario.sala));
   });
 
   // Enviar mensaje
-  client.on("crearMensaje", (usuario) => {
+  client.on("crearMensaje", (usuario, callback) => {
     let persona = usuarios.getPersona(client.id);
 
     let mensaje = crearMensaje(persona.nombre, usuario.mensaje);
     client.broadcast.to(persona.sala).emit("crearMensaje", mensaje);
+
+    callback(mensaje);
   });
 
   // Desconeccion de usuario
